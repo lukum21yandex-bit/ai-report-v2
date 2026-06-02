@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Исследование AI-функций аналитических платформ v2.0</title>
+<style>
+:root{--glass-bg:rgba(255,255,255,0.06);--glass-border:rgba(255,255,255,0.12);--glass-shadow:0 8px 32px rgba(0,0,0,0.3);--blur:16px;--accent-blue:#4dabf7;--accent-purple:#b197fc;--accent-green:#69db7c;--accent-orange:#ffa94d;--accent-red:#ff6b6b;--text-primary:#e8e8e8;--text-secondary:#a0a0a0}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#0f0c29 0%,#1a1a3e 30%,#24243e 60%,#0f0c29 100%);color:var(--text-primary);min-height:100vh;line-height:1.6;font-size:15px}
+.glass{background:var(--glass-bg);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));border:1px solid var(--glass-border);border-radius:16px;box-shadow:var(--glass-shadow)}
+.container{max-width:1100px;margin:0 auto;padding:20px}
+.hero{position:relative;border-radius:20px;overflow:hidden;margin-bottom:32px;text-align:center;padding:60px 40px}
+.hero img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0.25;z-index:0}
+.hero-content{position:relative;z-index:1}
+.hero h1{font-size:2.4em;font-weight:700;background:linear-gradient(135deg,var(--accent-blue),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px}
+.hero .subtitle{font-size:1.1em;color:var(--text-secondary);max-width:750px;margin:0 auto}
+.section{margin-bottom:32px;padding:28px}
+.section h2{font-size:1.5em;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid var(--glass-border)}
+.section h3{font-size:1.15em;margin:18px 0 10px;color:var(--accent-blue)}
+.section p{margin-bottom:12px;color:var(--text-secondary)}
+.grid{display:grid;gap:20px}
+.grid-3{grid-template-columns:repeat(3,1fr)}
+.grid-2{grid-template-columns:repeat(2,1fr)}
+.platform-card{padding:24px;position:relative;overflow:hidden}
+.platform-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.platform-card.sf::before{background:linear-gradient(90deg,var(--accent-blue),var(--accent-purple))}
+.platform-card.tab::before{background:linear-gradient(90deg,var(--accent-orange),var(--accent-red))}
+.platform-card.cl::before{background:linear-gradient(90deg,var(--accent-green),#38d9a9)}
+.platform-card.tp::before{background:linear-gradient(90deg,#74c0fc,#5c7cfa)}
+.platform-card h3{font-size:1.2em;margin:0 0 12px}
+.platform-card ul{list-style:none;padding:0}
+.platform-card li{padding:5px 0;color:var(--text-secondary);border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.92em}
+.platform-card li::before{content:'▸ ';color:var(--accent-blue)}
+.platform-card.cl li::before{color:var(--accent-green)}
+.platform-card.tab li::before{color:var(--accent-orange)}
+.platform-card.tp li::before{color:#74c0fc}
+.table-wrap{overflow-x:auto;margin:16px 0}
+table{width:100%;border-collapse:collapse;font-size:0.88em}
+th{text-align:left;padding:11px 14px;background:rgba(255,255,255,0.08);color:var(--accent-blue);font-weight:600;border-bottom:1px solid var(--glass-border)}
+td{padding:9px 14px;border-bottom:1px solid rgba(255,255,255,0.04);color:var(--text-secondary);vertical-align:top}
+tr:hover td{background:rgba(255,255,255,0.03)}
+.rating-high{color:var(--accent-green);font-weight:600}
+.rating-mid{color:var(--accent-orange)}
+.rating-low{color:var(--text-secondary)}
+.diagram{text-align:center;padding:20px;margin:16px 0}
+.diagram img{max-width:100%;border-radius:12px;opacity:0.9}
+.highlight-box{padding:14px 18px;margin:12px 0;background:rgba(77,171,247,0.08);border-left:3px solid var(--accent-blue);border-radius:0 8px 8px 0}
+.highlight-box p{color:var(--text-primary);font-size:0.93em}
+.highlight-box.green{background:rgba(105,219,124,0.08);border-left-color:var(--accent-green)}
+.highlight-box.orange{background:rgba(255,169,77,0.08);border-left-color:var(--accent-orange)}
+.highlight-box.purple{background:rgba(177,151,252,0.08);border-left-color:var(--accent-purple)}
+.tag{display:inline-block;padding:3px 10px;border-radius:12px;font-size:0.78em;margin:2px 4px 2px 0;background:rgba(255,255,255,0.08);color:var(--text-secondary)}
+.tag.blue{background:rgba(77,171,247,0.15);color:var(--accent-blue)}
+.tag.green{background:rgba(105,219,124,0.15);color:var(--accent-green)}
+.tag.purple{background:rgba(177,151,252,0.15);color:var(--accent-purple)}
+.tag.orange{background:rgba(255,169,77,0.15);color:var(--accent-orange)}
+.timeline{position:relative;padding-left:30px;margin:16px 0}
+.timeline::before{content:'';position:absolute;left:10px;top:0;bottom:0;width:2px;background:rgba(77,171,247,0.3)}
+.timeline-item{position:relative;margin-bottom:16px;padding:10px 14px;border-radius:8px;background:rgba(255,255,255,0.03)}
+.timeline-item::before{content:'';position:absolute;left:-24px;top:14px;width:10px;height:10px;border-radius:50%;background:var(--accent-blue);border:2px solid #0f0c29}
+.timeline-item .year{font-size:0.8em;color:var(--accent-blue);font-weight:700;margin-bottom:2px}
+.timeline-item p{font-size:0.9em;color:var(--text-secondary);margin:0}
+.footer{text-align:center;padding:24px;color:var(--text-secondary);font-size:0.85em}
+.img-gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+.img-gallery img{width:100%;border-radius:10px;opacity:0.85;transition:opacity 0.3s}
+.img-gallery img:hover{opacity:1}
+@media print{body{background:#1a1a3e}.glass{box-shadow:none;border:1px solid #333}.hero img{opacity:0.15}}
+@media(max-width:768px){.grid-3,.grid-2{grid-template-columns:1fr}.hero h1{font-size:1.6em}.img-gallery{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="hero glass">
+  <img src="ai_report_images/ai_adoption_trend.png" alt="AI Analytics">
+  <div class="hero-content">
+    <h1>Исследование AI-функций<br>аналитических платформ</h1>
+    <p class="subtitle">Расширенный сравнительный анализ: Salesforce Einstein/Agentforce, Tableau AI (Pulse & Copilot), Cloudera AI Platform, Snowflake Cortex AI, DataRobot, LangChain и другие. Версия 2.0 — июнь 2025.</p>
+  </div>
+</div>
+
+<!-- EXECUTIVE SUMMARY -->
+<div class="section glass">
+  <h2>Итоги исследования</h2>
+  <div class="highlight-box">
+    <p>AI-функции стали ключевым конкурентным преимуществом аналитических платформ. Salesforce перешла от Einstein к Agentforce — полноценной платформе агентного AI, где ИИ уже выполняет 30–50% внутренней работы. Tableau retired Ask Data в пользу Tableau Pulse + Einstein-powered AI. Cloudera — единственная платформа с AI на любой инфраструктуре (cloud, on-prem, edge). Сторонние решения (Snowflake Cortex, DataRobot, LangChain) заполняют ниши специализированного анализа.</p>
+  </div>
+  <p>Исследование охватило <b>6 платформ и 7 сторонних решений</b>, оценённых по <b>10 критериям</b>: генерация NLQ, автоматизация отчётов, агентный AI, интеграция LLM, обнаружение аномалий, доступность для бизнеса, Edge/IoT, MLOps, AI-управление и стоимость.</p>
+</div>
+
+<!-- TIMELINE -->
+<div class="section glass">
+  <h2>Хронология AI-развития (2016–2025)</h2>
+  <div class="timeline">
+    <div class="timeline-item"><div class="year">2016</div><p>Salesforce запускает Einstein — первый AI-продукт компании на Dreamforce. Лицензировано изображение Альберта Эйнштейна за $20 млн.</p></div>
+    <div class="timeline-item"><div class="year">2019</div><p>Salesforce приобретает Tableau за $15.7 млрд. Интеграция AI-функций начинается.</p></div>
+    <div class="timeline-item"><div class="year">2023 март</div><p>Einstein GPT — генеративный AI для CRM. ChatGPT интеграция в Slack для всех организаций.</p></div>
+    <div class="timeline-item"><div class="year">2024 февраль</div><p>Tableau retired Ask Data и Metrics (Feb 2024 Cloud, v2024.2 Server). Замена — Tableau AI + Tableau Pulse.</p></div>
+    <div class="timeline-item"><div class="year">2024 март</div><p>Einstein Copilot: Health Actions — AI-ассистент для здравоохранения (назначения, направления).</p></div>
+    <div class="timeline-item"><div class="year">2024 июль</div><p>Salesforce выпускает AI-агента для customer service — автоматизация возвратов, возмещений.</p></div>
+    <div class="timeline-item"><div class="year">2024 сен-окт</div><p><b>Agentforce</b> — новая платформа агентного AI, замена Einstein. Чатботы внутри ПО Salesforce.</p></div>
+    <div class="timeline-item"><div class="year">2025</div><p>AI выполняет 30–50% работы внутри Salesforce (софт, CS, маркетинг, аналитика). Cloudera AI Platform расширяется.</p></div>
+  </div>
+  <div class="diagram">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="AI Adoption Trend">
+  </div>
+</div>
+
+<!-- Ecosystem -->
+<div class="section glass">
+  <h2>AI-экосистема платформ</h2>
+  <div class="diagram">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="AI Platform Ecosystem">
+  </div>
+  <p style="text-align:center;font-size:0.88em;color:var(--text-secondary)">Архитектура взаимодействия AI-компонентов между платформами</p>
+</div>
+
+<!-- PLATFORM 1: Salesforce Einstein / Agentforce -->
+<div class="section glass">
+  <h2 style="color:var(--accent-blue)">Salesforce Einstein / Agentforce</h2>
+  <p><b>Исторический контекст:</b> Запущен на Dreamforce 2016 как первый AI-продукт Salesforce. Лицензировано изображение Альберта Эйнштейна за $20 млн на 20 лет. В сентябре-октябре 2024 заменён на Agentforce — полноценную платформу агентного AI.</p>
+  
+  <div class="highlight-box">
+    <p><b>Ключевой факт (июнь 2025):</b> Марк Бениофф заявил, что AI выполняет 30–50% внутренней работы Salesforce — софт-разработка, customer service, маркетинг, аналитика.</p>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="platform-card glass sf">
+      <h3 style="color:var(--accent-blue)">Einstein GPT</h3>
+      <p>Генеративный AI-сервис для CRM, запущенный в марте 2023. Создание кастомных моделей на данных CRM.</p>
+      <ul>
+        <li>Кастомные AI-модели на корпоративных данных CRM</li>
+        <li>Интеграция с ChatGPT/OpenAI</li>
+        <li>Безопасная работа через Einstein Trust Layer</li>
+        <li>Модели для прогнозов продаж, маркетинга, сервиса</li>
+      </ul>
+      <div style="margin-top:10px"><span class="tag blue">GPT</span><span class="tag purple">CRM</span><span class="tag blue">Trust Layer</span></div>
+    </div>
+
+    <div class="platform-card glass sf">
+      <h3 style="color:var(--accent-blue)">Agentforce</h3>
+      <p>Платформа агентного AI (замена Einstein), сентябрь-октябрь 2024. Чатботы внутри ПО Salesforce.</p>
+      <ul>
+        <li>AI-агенты для customer service (возвраты, возмещения)</li>
+        <li>Einstein Copilot: Health Actions (март 2024)</li>
+        <li>Agentic AI — автономные действия в CRM</li>
+        <li>ChatGPT integration в Slack (март 2023)</li>
+      </ul>
+      <div style="margin-top:10px"><span class="tag blue">Agent</span><span class="tag purple">Autonomous</span><span class="tag blue">Slack</span></div>
+    </div>
+
+    <div class="platform-card glass sf">
+      <h3 style="color:var(--accent-blue)">Einstein Discovery</h3>
+      <p>Автоматизированная аналитика (AutoML) — обнаружение закономерностей в данных CRM без кода.</p>
+      <ul>
+        <li>AutoML для прогнозирования без ML-экспертизы</li>
+        <li>Объяснение факторов, влияющих на KPI</li>
+        <li>Прогнозы оттока, конверсии, LTV</li>
+        <li>Интеграция с Flow для автоматизации</li>
+      </ul>
+      <div style="margin-top:10px"><span class="tag blue">AutoML</span><span class="tag">Predictive</span></div>
+    </div>
+
+    <div class="platform-card glass sf">
+      <h3 style="color:var(--accent-blue)">Einstein Prediction Builder</h3>
+      <p>Конструктор прогнозных моделей без кода для бизнес-пользователей Salesforce.</p>
+      <ul>
+        <li>Drag-and-drop создание ML-моделей</li>
+        <li>Прогнозы на основе данных CRM</li>
+        <li>Валидация и мониторинг моделей</li>
+        <li>Интеграция в бизнес-процессы</li>
+      </ul>
+      <div style="margin-top:10px"><span class="tag blue">No-Code</span><span class="tag purple">ML</span></div>
+    </div>
+  </div>
+
+  <div class="diagram">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="Salesforce Einstein GPT">
+  </div>
+</div>
+
+<!-- PLATFORM 2: Tableau AI -->
+<div class="section glass">
+  <h2 style="color:var(--accent-orange)">Tableau AI (Pulse & Copilot)</h2>
+  <p><b>Критическое изменение (Feb 2024):</b> Функции Ask Data и Metrics были retired в Tableau Cloud (февраль 2024) и Tableau Server v2024.2. С переходом на новые технологии NL, Tableau заменила их на улучшенные альтернативы — Tableau AI и Tableau Pulse.</p>
+
+  <div class="highlight-box orange">
+    <p><b>Ask Data retired</b> — заменён на Einstein-powered альтернативы. Tableau Pulse уникален на рынке: автоматическая генерация AI-сводок по дашбордам без ручной настройки.</p>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="platform-card glass tab">
+      <h3 style="color:var(--accent-orange)">Tableau Pulse</h3>
+      <p>Автоматические AI-сводки по дашбордам с персонализированными инсайтах.</p>
+      <ul>
+        <li>Автоматические AI-сводки по дашбордам без настройки</li>
+        <li>Доставка в email, Slack, Teams</li>
+        <li>Einstein-powered обнаружение трендов</li>
+        <li>Персонализированные инсайты для каждого пользователя</li>
+        <li>Замена Metrics (retired вместе с Ask Data)</li>
+      </ul>
+      <div style="margin-top:10px"><span class="tag orange">Pulse</span><span class="tag">Automation</span><span class="tag orange">Alerts</span></div>
+    </div>
+
+    <div class="platform-card glass tab">
+      <h3 style="color:var(--accent-orange)">Tableau Copilot</h3>
+      <p>Встроенный AI-ассистент для создания визуализаций и анализа данных.</p>
+      <ul>
+        <li>AI-помощник для создания визуализаций</li>
+        <li>Новые NL-запросы (замена Ask Data)</li>
+        <li>Einstein-powered объяснения данных</li>
+        <li>Рекомендации по визуализациям</li>
+        <li>Замена Explain Data (retired)</li>
+      </ul>
+      <div style="margin-top:10px"><span class="tag orange">Copilot</span><span class="tag">NLQ</span><span class="tag">Viz</span></div>
+    </div>
+  </div>
+
+  <h3>Эволюция AI-функций Tableau</h3>
+  <table>
+    <thead><tr><th>Период</th><th>Функция</th><th>Статус</th><th>Замена</th></tr></thead>
+    <tbody>
+      <tr><td>2018–2024</td><td>Ask Data</td><td style="color:var(--accent-red)">Retired (Feb 2024)</td><td>Tableau Copilot NLQ</td></tr>
+      <tr><td>2019–2024</td><td>Metrics</td><td style="color:var(--accent-red)">Retired (Feb 2024)</td><td>Tableau Pulse</td></tr>
+      <tr><td>2020–2024</td><td>Explain Data</td><td style="color:var(--accent-red)">Retired</td><td>Einstein-powered insights</td></tr>
+      <tr><td>2024→</td><td>Tableau Pulse</td><td style="color:var(--accent-green)">Active</td><td>—</td></tr>
+      <tr><td>2024→</td><td>Tableau Copilot</td><td style="color:var(--accent-green)">Active</td><td>—</td></tr>
+    </tbody>
+  </table>
+
+  <div class="diagram">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="Tableau Pulse Dashboard">
+  </div>
+</div>
+
+<!-- PLATFORM 3: Cloudera AI -->
+<div class="section glass">
+  <h2 style="color:var(--accent-green)">Cloudera AI Platform</h2>
+  <p><b>Позиционирование:</b> Единственная платформа, объединяющая AI с data anywhere — cloud, on-premise, edge. Основана в 2008 бывшими инженерами Google, Yahoo!, Facebook. Главный продукт — Cloudera Platform с AI Inference, AI Studios, AI Assistants, AI Workbench.</p>
+
+  <div class="highlight-box green">
+    <p>Ключевое преимущество: единственная из исследованных платформ с полноценной поддержкой edge-развёртывания AI, sovereign cloud и streaming на потоковых данных. Подходит для regulated industries.</p>
+  </div>
+
+  <div class="grid grid-3">
+    <div class="platform-card glass cl">
+      <h3 style="color:var(--accent-green)">AI Workbench</h3>
+      <ul>
+        <li>Среда разработки и обучения ML-моделей</li>
+        <li>Jupyter-совместимые ноутбуки</li>
+        <li>Доступ к корпоративным данным</li>
+        <li>Совместная разработка</li>
+      </ul>
+    </div>
+    <div class="platform-card glass cl">
+      <h3 style="color:var(--accent-green)">AI Inference</h3>
+      <ul>
+        <li>Production-serving моделей</li>
+        <li>Масштабируемая inference-инфраструктура</li>
+        <li>Мониторинг и observability</li>
+        <li>A/B тестирование моделей</li>
+      </ul>
+    </div>
+    <div class="platform-card glass cl">
+      <h3 style="color:var(--accent-green)">AI Assistants</h3>
+      <ul>
+        <li>Enterprise AI-ассистенты</li>
+        <li>На основе корпоративных данных</li>
+        <li>RAG-возможности</li>
+        <li>Безопасный доступ</li>
+      </ul>
+    </div>
+    <div class="platform-card glass cl">
+      <h3 style="color:var(--accent-green)">AI Studios</h3>
+      <ul>
+        <li>Конструктор AI-приложений</li>
+        <li>Low-code интерфейс</li>
+        <li>Преднастроенные шаблоны</li>
+        <li>Быстрый deployment</li>
+      </ul>
+    </div>
+    <div class="platform-card glass cl">
+      <h3 style="color:var(--accent-green)">Edge Management</h3>
+      <ul>
+        <li>AI на edge-устройствах</li>
+        <li>IoT-аналитика</li>
+        <li>Потоковая обработка</li>
+        <li>Удалённое управление</li>
+      </ul>
+    </div>
+    <div class="platform-card glass cl">
+      <h3 style="color:var(--accent-green)">Data Fabric</h3>
+      <ul>
+        <li>Unified Data Fabric — единый слой доступа</li>
+        <li>Data Catalog + Lineage</li>
+        <li>Observability</li>
+        <li>Sovereign cloud</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="diagram">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="Cloudera AI Workbench">
+  </div>
+</div>
+
+<!-- PLATFORM 4: Сторонние решения -->
+<div class="section glass">
+  <h2 style="color:#74c0fc">Сторонние AI-решения</h2>
+
+  <div class="grid grid-2">
+    <div class="platform-card glass tp">
+      <h3 style="color:#74c0fc">Snowflake Cortex AI</h3>
+      <p>AI-функции прямо внутри Snowflake Data Cloud — без отдельной платформы.</p>
+      <ul>
+        <li>LLM-функции (суммаризация, генерация, анализ тональности)</li>
+        <li>Cortex Fine-Tuning — кастомизация моделей</li>
+        <li>Cortex Guard — безопасность AI-контента</li>
+        <li>Cortex Search — семантический поиск по данным</li>
+        <li>Zero data movement — данные не покидают Snowflake</li>
+      </ul>
+      <div style="margin-top:10px"><span class="tag" style="background:rgba(116,192,252,0.15);color:#74c0fc">Zero Movement</span><span class="tag purple">LLM</span><span class="tag">Search</span></div>
+    </div>
+
+    <div class="platform-card glass tp">
+      <h3 style="color:#74c0fc">DataRobot</h3>
+      <p>Enterprise AutoML-платформа с AI-управлением, observability и agentic AI.</p>
+      <ul>
+        <li>Agentic AI Platform — AI-агенты для бизнес-процессов</li>
+        <li>Generative AI — интеграция LLM</li>
+        <li>Predictive AI — AutoML модели</li>
+        <li>AI Governance + Observability — полный контроль</li>
+        <li>Интеграции: NVIDIA, Dell, SAP</li>
+      </ul>
+      <div style="margin-top:10px"><span class="tag" style="background:rgba(116,192,252,0.15);color:#74c0fc">AutoML</span><span class="tag">Governance</span><span class="tag purple">Agents</span></div>
+    </div>
+
+    <div class="platform-card glass tp">
+      <h3 style="color:#74c0fc">GCP Vertex AI</h3>
+      <p>ML-платформа Google Cloud с поддержкой Gemini. End-to-end ML lifecycle.</p>
+      <ul>
+        <li>AutoML — обучение моделей без кода</li>
+        <li>Custom Training — обучение на собственных данных</li>
+        <li>Vertex AI Search + Conversation — RAG-приложения</li>
+        <li>Model Garden — доступ к Gemini и другим моделям</li>
+        <li>MLOps: pipelines, monitoring, feature store</li>
+      </ul>
+      <div style="margin-top:10px"><span class="tag" style="background:rgba(116,192,252,0.15);color:#74c0fc">Gemini</span><span class="tag blue">MLOps</span><span class="tag">RAG</span></div>
+    </div>
+
+    <div class="platform-card glass tp">
+      <h3 style="color:#74c0fc">LangChain / LlamaIndex</h3>
+      <p>Фреймворки для RAG-приложений и AI-агентов, интегрируемые с любой платформой.</p>
+      <ul>
+        <li>LangSmith — observability и evaluation AI-агентов</li>
+        <li>LangGraph — надёжные stateful-агенты</li>
+        <li>LlamaIndex — RAG-фреймворк для данных</li>
+        <li>Fleet Agents — агентные решения для компаний</li>
+        <li>Sandboxes — безопасное выполнение кода</li>
+      </ul>
+      <div style="margin-top:10px"><span class="tag" style="background:rgba(116,192,252,0.15);color:#74c0fc">RAG</span><span class="tag purple">Agents</span><span class="tag">Framework</span></div>
+    </div>
+  </div>
+
+  <div class="diagram">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="LangChain RAG">
+  </div>
+</div>
+
+<!-- COMPARISON TABLE -->
+<div class="section glass">
+  <h2>Расширенная сравнительная таблица</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Критерий</th><th>SF Agentforce</th><th>Tableau AI</th><th>Cloudera AI</th><th>Snowflake Cortex</th><th>DataRobot</th><th>GCP Vertex</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><b>NL-запросы к данным</b></td><td class="rating-high">★★★★★</td><td class="rating-high">★★★★★</td><td class="rating-mid">★★★☆☆</td><td class="rating-high">★★★★★</td><td class="rating-mid">★★★☆☆</td><td class="rating-high">★★★★☆</td></tr>
+        <tr><td><b>Автоматизация отчётов</b></td><td class="rating-high">★★★★☆</td><td class="rating-high">★★★★★</td><td class="rating-mid">★★★☆☆</td><td class="rating-mid">★★★☆☆</td><td class="rating-high">★★★★☆</td><td class="rating-mid">★★★☆☆</td></tr>
+        <tr><td><b>Агентный AI</b></td><td class="rating-high">★★★★★</td><td class="rating-mid">★★★☆☆</td><td class="rating-mid">★★★☆☆</td><td class="rating-mid">★★★☆☆</td><td class="rating-high">★★★★★</td><td class="rating-mid">★★★☆☆</td></tr>
+        <tr><td><b>Интеграция LLM</b></td><td class="rating-high">★★★★★</td><td class="rating-mid">★★★★☆</td><td class="rating-high">★★★★★</td><td class="rating-high">★★★★★</td><td class="rating-high">★★★★★</td><td class="rating-high">★★★★★</td></tr>
+        <tr><td><b>Обнаружение аномалий</b></td><td class="rating-mid">★★★★☆</td><td class="rating-high">★★★★★</td><td class="rating-high">★★★★★</td><td class="rating-mid">★★★☆☆</td><td class="rating-high">★★★★☆</td><td class="rating-mid">★★★☆☆</td></tr>
+        <tr><td><b>Доступность для бизнеса</b></td><td class="rating-high">★★★★★</td><td class="rating-high">★★★★★</td><td class="rating-low">★★☆☆☆</td><td class="rating-high">★★★★☆</td><td class="rating-mid">★★★☆☆</td><td class="rating-mid">★★★☆☆</td></tr>
+        <tr><td><b>Edge / IoT</b></td><td class="rating-low">★★☆☆☆</td><td class="rating-low">☆☆☆☆☆</td><td class="rating-high">★★★★★</td><td class="rating-low">★☆☆☆☆</td><td class="rating-low">☆☆☆☆☆</td><td class="rating-mid">★★★☆☆</td></tr>
+        <tr><td><b>MLOps / serving</b></td><td class="rating-mid">★★★☆☆</td><td class="rating-low">★★☆☆☆</td><td class="rating-high">★★★★★</td><td class="rating-mid">★★★★☆</td><td class="rating-high">★★★★★</td><td class="rating-high">★★★★★</td></tr>
+        <tr><td><b>AI-управление и governance</b></td><td class="rating-high">★★★★★</td><td class="rating-mid">★★★☆☆</td><td class="rating-high">★★★★★</td><td class="rating-high">★★★★☆</td><td class="rating-high">★★★★★</td><td class="rating-high">★★★★★</td></tr>
+        <tr><td><b>Стоимость (lower=better)</b></td><td class="rating-mid">★★☆☆☆</td><td class="rating-mid">★★★☆☆</td><td class="rating-mid">★★☆☆☆</td><td class="rating-mid">★★★☆☆</td><td class="rating-low">★★☆☆☆</td><td class="rating-mid">★★★☆☆</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="diagram">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="Comparison">
+  </div>
+  <div class="diagram">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="Features Radar">
+  </div>
+</div>
+
+<!-- DETAILED ANALYSIS -->
+<div class="section glass">
+  <h2>Подробный анализ</h2>
+
+  <h3 style="color:var(--accent-blue)">Salesforce Agentforce — лидер в агентном AI</h3>
+  <p>Evolving от Einstein (2016) к Einstein GPT (2023) к Agentforce (2024). В июне 2025 CEO Marc Benioff сообщил, что AI выполняет 30–50% внутренней работы Salesforce. Agentforce позволяет создавать автономных AI-агентов для customer service, которые реально выполняют действия — возвраты, возмещения, назначения. Trust Layer гарантирует, что корпоративные данные не утекают во внешние LLM.</p>
+  <div class="highlight-box"><p>Agentforce — самая зрелая платформа агентного AI для CRM. Автономные действия, а не просто рекомендации.</p></div>
+
+  <h3 style="color:var(--accent-orange)">Tableau AI — эволюция визуальной аналитики</h3>
+  <p>Retirement Ask Data и Metrics (Feb 2024) — значимое решение. Tableau признала, что старые NL-технологии устарели, и заменила их на Einstein-powered альтернативы. Tableau Pulse генерирует AI-сводки автоматически — уникальная функция на рынке. Tableau Copilot — AI-ассистент для создания визуализаций через естественный язык.</p>
+  <div class="highlight-box orange"><p>Tableau — первый на рынке визуальной аналитики с AI. Комбинация Pulse и Copilot обеспечивает уникальный AI-опыт бизнес-аналитики.</p></div>
+
+  <h3 style="color:var(--accent-green)">Cloudera AI — единственная гибридная AI-платформа</h3>
+  <p>Единственная платформа, работающая на cloud, on-prem и edge-устройствах. AI Workbench для разработчиков, AI Studios для business, AI Inference для production, AI Assistants для RAG. Edge Management и Streaming делают Cloudera идеальным для IoT и regulated industries (финансы, здравоохранение). Data Fabric обеспечивает единый слой доступа к данным с полным lineage и governance.</p>
+  <div class="highlight-box green"><p>Cloudera — выбор №1 для enterprise с гибридной инфраструктурой и строгими требованиями к data sovereignty.</p></div>
+
+  <h3 style="color:#74c0fc">Сторонние решения — специализация и интеграция</h3>
+  <p>Snowflake Cortex AI уникален zero data movement — AI-функции работают прямо в data warehouse. DataRobot лидирует в AI governance и observability для enterprise. GCP Vertex AI обеспечивает полный MLOps lifecycle с Gemini. LangChain + LlamaIndex — де-факто стандарт для RAG-приложений.</p>
+</div>
+
+<!-- RECOMMENDATIONS -->
+<div class="section glass">
+  <h2>Рекомендации</h2>
+  <div class="highlight-box"><p><b>Для CRM-команд:</b> Salesforce Agentforce + Tableau Pulse — максимальная автоматизация продаж и визуальная аналитика. AI выполняет реальные действия (возвраты, возмещения).</p></div>
+  <div class="highlight-box green"><p><b>Для data science / ML:</b> Cloudera AI + DataRobot — полный цикл MLOps с edge-развёртыванием и enterprise governance.</p></div>
+  <div class="highlight-box purple"><p><b>Для гибридной инфраструктуры:</b> Cloudera AI — единственная платформа cloud + on-prem + edge. Sovereign cloud compliance.</p></div>
+  <div class="highlight-box orange"><p><b>Для быстрой интеграции AI:</b> Snowflake Cortex AI + LangChain — минимальная задержка, zero data movement, RAG прямо в data warehouse.</p></div>
+  <div class="highlight-box"><p><b>Для бюджетных решений:</b> GCP Vertex AI — масштабируемая ML-платформа с Gemini, pay-per-use, богатая экосистема.</p></div>
+  <div class="highlight-box green"><p><b>Для regulated industries:</b> Cloudera AI + DataRobot — максимальный governance, lineage, compliance. Edge AI для IoT.</p></div>
+</div>
+
+<!-- IMAGE GALLERY -->
+<div class="section glass">
+  <h2>Галерея визуализаций</h2>
+  <div class="img-gallery">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="Agent Builder">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="Einstein Copilot">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="Einstein Discovery">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="Prediction Builder">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="Trust Layer">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="Tableau Copilot">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="Anomaly Detection">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="NL Query">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="Cloudera AI Assistants">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="Cloudera Inference">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="Edge AI">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="Lakehouse">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="Databricks LLM">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="Snowflake Cortex">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="DataRobot">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="Vertex AI">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="LangChain">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="MLOps Pipeline">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="NLP AI">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="Hybrid Infrastructure">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="AI Security">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="AI Governance">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="AI Future">
+    <img src="ai_report_images/ai_adoption_trend.png" alt="Report Summary">
+  </div>
+</div>
+
+<!-- APPENDIX -->
+<div class="section glass">
+  <h2>Приложение</h2>
+  <h3>Словарь терминов</h3>
+  <table>
+    <tbody>
+      <tr><td><b>NLQ</b></td><td>Natural Language Query — запрос к данным на естественном языке</td></tr>
+      <tr><td><b>AutoML</b></td><td>Автоматизированное машинное обучение</td></tr>
+      <tr><td><b>LLM</b></td><td>Large Language Model — GPT, Claude, Gemini, Llama</td></tr>
+      <tr><td><b>RAG</b></td><td>Retrieval-Augmented Generation — генерация с подтягиванием документов</td></tr>
+      <tr><td><b>Edge AI</b></td><td>AI на периферийных устройствах (IoT)</td></tr>
+      <tr><td><b>Sovereign Cloud</b></td><td>Облако с полным контролем по юрисдикции</td></tr>
+      <tr><td><b>MLOps</b></td><td>Практики управления жизненным циклом ML-моделей</td></tr>
+      <tr><td><b>Data Lineage</b></td><td>Прослеживаемость происхождения данных</td></tr>
+      <tr><td><b>Data Fabric</b></td><td>Единый слой абстракции для доступа к данным</td></tr>
+      <tr><td><b>Agentforce</b></td><td>Платформа агентного AI от Salesforce (сентябрь 2024)</td></tr>
+      <tr><td><b>Feature Store</b></td><td>Хранилище признаков для ML-моделей</td></tr>
+      <tr><td><b>Zero Data Movement</b></td><td>AI-функции работают на месте, данные не покидают хранилище</td></tr>
+    </tbody>
+  </table>
+  <h3 style="margin-top:20px">Источники</h3>
+  <p>• Salesforce Wikipedia (en.wikipedia.org/wiki/Salesforce) — AI-секция, хронология Einstein→Agentforce<br>
+  • Tableau Software Wikipedia (en.wikipedia.org/wiki/Tableau_Software) — продукты, история<br>
+  • Cloudera Wikipedia (en.wikipedia.org/wiki/Cloudera) — продукты, основание<br>
+  • Tableau Help — Ask Data документация, подтверждение retirement Feb 2024<br>
+  • Cloudera.com — навигация Cloudera AI Platform, продукты<br>
+  • DataRobot.com — AI Platform, Agentic AI, Governance<br>
+  • GCP Vertex AI Documentation — обзор, MLOps, AutoML, Gemini<br>
+  • LangChain.com — LangSmith, LangGraph, Fleet Agents<br>
+  • LlamaIndex.ai — RAG-фреймворк<br>
+  • Snowflake.com — Cortex AI, Data Cloud<br>
+  • Официальные анонсы Salesforce (Dreamforce 2016–2025)</p>
+</div>
+
+<div class="footer glass">
+  <p>Исследование AI-функций аналитических платформ v2.0</p>
+  <p style="margin-top:4px">Июнь 2025 | Подготовлено с использованием официальной документации и открытых источников</p>
+</div>
+
+</div>
+</body>
+</html>
